@@ -7,14 +7,21 @@ using System.Linq;
 using System.Management;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using System.Globalization;
+using System.Threading;
+using System.ComponentModel;
 
 namespace oembuild
 {
     public partial class Form1 : Form
     {
+
+        private bool isRussian = true;
+
         public Form1()
         {
             InitializeComponent();
+            SetLanguage("ru-RU");
             LoadRegistrySettings();
             pc_name_tb.Text = Environment.MachineName;
         }
@@ -506,5 +513,38 @@ namespace oembuild
                 MessageBox.Show($"Error clearing settings: {ex.Message}", "Error");
             }
         }
+
+        private void ApplyResources(Control control, ComponentResourceManager resources)
+        {
+            resources.ApplyResources(control, control.Name);
+            foreach (Control child in control.Controls)
+            {
+                ApplyResources(child, resources);
+            }
+        }
+
+        private void SetLanguage(string culture)
+        {
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo(culture);
+            ApplyResources(this, new ComponentResourceManager(typeof(Form1)));
+        }
+
+        private void Button2_Click(object sender, EventArgs e)
+        {
+            if (isRussian)
+            {
+                SetLanguage("en-US");
+                switch_lang_btn.Text = "РУС";
+                isRussian = false;
+            }
+            else
+            {
+                SetLanguage("ru-RU");
+                switch_lang_btn.Text = "ENG";
+                isRussian = true;
+            }
+        }
+
+
     }
 }
